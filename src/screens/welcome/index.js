@@ -6,7 +6,7 @@ export default function Welcome() {
   const [alert, setAlert] = useState(false);
   const [infos, setInfos] = useState([]);
   const [xInput, setXInput] = useState(null);
-  const [xInput, setYInput] = useState(null);
+  const [yInput, setYInput] = useState(null);
   const mounted = useRef(true);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function Welcome() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createInfo({x: xInput, y: yInput}).then((res) => {
+    createInfo({ x: xInput, y: yInput }).then((res) => {
       console.log("res" + JSON.stringify(res));
       setXInput(null);
       setYInput(null);
@@ -58,31 +58,44 @@ export default function Welcome() {
             onChange={(event) => setYInput(event.target.value)}
             value={yInput}
           />
-          <button type="submit" disabled={!(xInput&&yInput)}>submit</button>
+          <button type="submit" disabled={!(xInput && yInput)}>
+            submit
+          </button>
         </form>
       </div>
       <ul>
-        {infos.map((item) => (
-          <li key={item.x}>{item.y}</li>
-        ))}
+        {infos
+          .sort((info1, info2) => info1.x - info2.x)
+          .map((item) => (
+            <li key={item.x}>
+              ({item.x},{item.y})
+            </li>
+          ))}
       </ul>
-      {(Array.isArray(infos) && !infos.length) &&
-      <VictoryChart minDomain={{ x: 0, y: 0 }} theme={VictoryTheme.material}>
-        <VictoryLine
-          interpolation="natural"
-          labels={({ datum }) => datum.label}
-          labelComponent={<VictoryLabel />}
-          animate={{
-            duration: 10000,
-            onLoad: { duration: 5000 }
-          }}
-          style={{
-            data: { stroke: "#c43a31" },
-            parent: { border: "1px solid #ccc" }
-          }}
-          data={infos.sort((info1, info2)=>(info1.y-info2.y)).map(({x,y})=>({x,y,label:`(${x},${y})`}))}
-        />
-      </VictoryChart>}
+      {Array.isArray(infos) && infos.length && (
+        <VictoryChart
+          minDomain={{ x: 0, y: 0 }}
+          maxDomain={{ x: 120, y: 120 }}
+          theme={VictoryTheme.material}
+        >
+          <VictoryLine
+            //interpolation="natural"
+            labels={({ datum }) => datum.label}
+            labelComponent={<VictoryLabel />}
+            animate={{
+              duration: 10000,
+              onLoad: { duration: 5000 }
+            }}
+            style={{
+              data: { stroke: "#c43a31" },
+              parent: { border: "1px solid #ccc" }
+            }}
+            data={infos
+              .sort((info1, info2) => info1.x - info2.x)
+              .map(({ x, y }) => ({ x, y, label: `(${x},${y})` }))}
+          />
+        </VictoryChart>
+      )}
     </div>
   );
 }
