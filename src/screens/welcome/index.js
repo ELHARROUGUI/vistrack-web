@@ -7,6 +7,10 @@ export default function Welcome() {
   const [infos, setInfos] = useState([]);
   const [xInput, setXInput] = useState(null);
   const [yInput, setYInput] = useState(null);
+  const [maxX, setMaxX] = useState(100);
+  const [minX, setMinX] = useState(0);
+  const [maxY, setMaxY] = useState(100);
+  const [minY, setMinY] = useState(0);
   const mounted = useRef(true);
 
   useEffect(() => {
@@ -16,7 +20,14 @@ export default function Welcome() {
     }
     getInfos().then((items) => {
       if (mounted.current) {
-        if (Array.isArray(items)) setInfos(items);
+        if (Array.isArray(items)) {
+          setMaxX(Math.max(...items.map(({ x }) => x)));
+          setMaxY(Math.max(...items.map(({ y }) => y)));
+          setMinX(Math.min(...items.map(({ x }) => x)));
+          setMinY(Math.min(...items.map(({ y }) => y)));
+
+          setInfos(items);
+        }
       }
     });
     return () => (mounted.current = false);
@@ -43,6 +54,30 @@ export default function Welcome() {
   return (
     <div className="App">
       <h1>Vistrack</h1>
+      {Array.isArray(infos) && infos.length && (
+        <VictoryChart
+          minDomain={{ x: minX - 10, y: minY - 10 }}
+          maxDomain={{ x: maxX + 10, y: maxY + 10 }}
+          theme={VictoryTheme.material}
+        >
+          <VictoryLine
+            //interpolation="natural"
+            labels={({ datum }) => datum.label}
+            labelComponent={<VictoryLabel />}
+            animate={{
+              duration: 10000,
+              onLoad: { duration: 5000 }
+            }}
+            style={{
+              data: { stroke: "#c43a31" },
+              parent: { border: "1px solid #ccc" }
+            }}
+            data={infos
+              .sort((info1, info2) => info1.x - info2.x)
+              .map(({ x, y }) => ({ x, y, label: `(${x},${y})` }))}
+          />
+        </VictoryChart>
+      )}
       <div>
         {alert && <h2> Submit Successful</h2>}
         <form onSubmit={handleSubmit}>
@@ -72,30 +107,6 @@ export default function Welcome() {
             </li>
           ))}
       </ul>
-      {Array.isArray(infos) && infos.length && (
-        <VictoryChart
-          minDomain={{ x: 0, y: 0 }}
-          maxDomain={{ x: 120, y: 120 }}
-          theme={VictoryTheme.material}
-        >
-          <VictoryLine
-            //interpolation="natural"
-            labels={({ datum }) => datum.label}
-            labelComponent={<VictoryLabel />}
-            animate={{
-              duration: 10000,
-              onLoad: { duration: 5000 }
-            }}
-            style={{
-              data: { stroke: "#c43a31" },
-              parent: { border: "1px solid #ccc" }
-            }}
-            data={infos
-              .sort((info1, info2) => info1.x - info2.x)
-              .map(({ x, y }) => ({ x, y, label: `(${x},${y})` }))}
-          />
-        </VictoryChart>
-      )}
     </div>
   );
 }
