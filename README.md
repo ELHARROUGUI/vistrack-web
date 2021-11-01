@@ -1,2 +1,3 @@
 # vistrack-web
-Simple Weight Tracker
+
+Simple Progress Tracker Web Application Based on React & Victory

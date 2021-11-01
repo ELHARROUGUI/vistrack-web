@@ -1,7 +1,7 @@
 {
-  "name": "estimit-web",
+  "name": "vistrack-web",
   "version": "1.0.0",
-  "description": "",
+  "description": "Simple Progress Tracker App",
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
