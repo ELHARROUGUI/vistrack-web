@@ -5,7 +5,8 @@ import { getInfos, createInfo } from "../../services/info";
 export default function Welcome() {
   const [alert, setAlert] = useState(false);
   const [infos, setInfos] = useState([]);
-  const [wInput, setWInput] = useState("");
+  const [xInput, setXInput] = useState(null);
+  const [xInput, setYInput] = useState(null);
   const mounted = useRef(true);
 
   useEffect(() => {
@@ -31,9 +32,10 @@ export default function Welcome() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createInfo(wInput).then((res) => {
+    createInfo({x: xInput, y: yInput}).then((res) => {
       console.log("res" + JSON.stringify(res));
-      setWInput("");
+      setXInput(null);
+      setYInput(null);
       setAlert(true);
     });
   };
@@ -44,13 +46,19 @@ export default function Welcome() {
       <div>
         {alert && <h2> Submit Successful</h2>}
         <form onSubmit={handleSubmit}>
-          <h2>Add weight value</h2>
           <input
             type="text"
-            onChange={(event) => setWInput(event.target.value)}
-            value={wInput}
+            placeholder="x"
+            onChange={(event) => setXInput(event.target.value)}
+            value={xInput}
           />
-          <button type="submit">submit</button>
+          <input
+            type="text"
+            placeholder="y"
+            onChange={(event) => setYInput(event.target.value)}
+            value={yInput}
+          />
+          <button type="submit" disabled={!(xInput&&yInput)}>submit</button>
         </form>
       </div>
       <ul>
@@ -58,6 +66,7 @@ export default function Welcome() {
           <li key={item.x}>{item.y}</li>
         ))}
       </ul>
+      {(Array.isArray(infos) && !infos.length) &&
       <VictoryChart minDomain={{ x: 0, y: 0 }} theme={VictoryTheme.material}>
         <VictoryLine
           interpolation="natural"
@@ -71,15 +80,9 @@ export default function Welcome() {
             data: { stroke: "#c43a31" },
             parent: { border: "1px solid #ccc" }
           }}
-          data={[
-            { x: 1, y: 2, label: "A" },
-            { x: 2, y: 3, label: "S" },
-            { x: 3, y: 5, label: "Z" },
-            { x: 4, y: 4, label: "E" },
-            { x: 5, y: 7, label: "F" }
-          ]}
+          data={infos.sort((info1, info2)=>(info1.y-info2.y)).map(({x,y})=>({x,y,label:`(${x},${y})`}))}
         />
-      </VictoryChart>
+      </VictoryChart>}
     </div>
   );
 }
